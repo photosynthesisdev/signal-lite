@@ -1,6 +1,7 @@
 from fastapi import FastAPI, WebSocket, Request
 from .database import SimpleMessagingDB
 from .models import ServerValidatedMessage
+from starlette.responses import PlainTextResponse
 
 import logging
 
@@ -8,9 +9,7 @@ app = FastAPI()
 
 @app.get("/bootup")
 def bootup(request : Request):
-    # Called as soon as page loads for client.
-    # Will return a list of client messages to be read.
-    ...
+    return "sup"
 
 @app.websocket("/chatConnect")
 async def websocket(websocket: WebSocket):

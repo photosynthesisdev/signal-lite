@@ -1,0 +1,6 @@
+#!/bin/bash -xe
+
+ROOT="/root/signal-lite"
+source "/root/signal-lite/venv/bin/activate"
+
+uvicorn --workers=8 --host 0.0.0.0 --port 8000 backend.api:app
