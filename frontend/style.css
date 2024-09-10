@@ -18,8 +18,8 @@ body {
 .chat-container {
   display: flex;
   flex-direction: column;
-  width: 100vw; /* Full screen width */
-  height: 100dvh; /* Full screen height */
+  width: 100vw;
+  height: 100dvh;
   background-color: #fff;
   border-radius: 0;
 }
