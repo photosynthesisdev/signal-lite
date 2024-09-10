@@ -1,27 +1,38 @@
 <!DOCTYPE html>
-<html lang="en-us">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <title>Signal Lite</title>
-        <script src="main.js"></script>
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <section class="msger">
-        <header class="msger-header">
-          <div class="msger-header-title">
-            <i class="fas fa-comment-alt"></i> 
-            Signal Lite
-          </div>
-          <div class="msger-header-options">
-            <span><i class="fas fa-cog"></i></span>
-          </div>
-        </header>
-        <main class="msger-chat">
-        </main>
-        <form class="msger-inputarea">
-          <input type="text" class="msger-input" placeholder="Enter your message...">
-          <button type="submit" class="msger-send-btn">Send</button>
-        </form>
-    </section>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chat UI</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js"></script>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            Simple Chat UI
+        </div>
+        <div class="chat-messages">
+            <div class="message">
+                <div class="message-bubble">
+                    Hello! How are you doing?
+                </div>
+                <div class="message-time">12:00</div>
+            </div>
+
+            <div class="message user">
+                <div class="message-bubble">
+                    I'm great, thanks! What about you?
+                </div>
+                <div class="message-time">12:01</div>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" class="chat-input" placeholder="Type a message...">
+            <button class="chat-send-btn">Send</button>
+        </div>
+    </div>
+</body>
 </html>

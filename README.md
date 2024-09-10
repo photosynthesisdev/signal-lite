@@ -1,5 +1,7 @@
 # signal-lite
 
+Signal Lite is a very lightweight messaging app that we will be making over the course of 3 sepearte lectures.
+
 TODO:
 - Pretty up the HTML + CSS + JS Frontend
 - Websocket Implementation

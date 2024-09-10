@@ -1,78 +1,80 @@
-window.addEventListener("load", function () {
-    const msgerForm = get(".msger-inputarea");
-    const msgerInput = get(".msger-input");
-    const msgerChat = get(".msger-chat");
-    
-    const BOT_MSGS = [
-      "Hi, how are you?",
-      "Ohh... I can't understand what you trying to say. Sorry!",
-      "I like to play games... But I don't know how to play!",
-      "Sorry if my answers are not relevant. :))",
-      "I feel sleepy! :("
-    ];
-    
-    // Icons made by Freepik from www.flaticon.com
-    const BOT_IMG = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png";
-    const PERSON_IMG = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png";
-    const BOT_NAME = "BOT";
-    const PERSON_NAME = "Danny";
-    
-    msgerForm.addEventListener("submit", event => {
-      event.preventDefault();
-    
-      const msgText = msgerInput.value;
-      if (!msgText) return;
-    
-      appendMessage(PERSON_NAME, PERSON_IMG, "right", msgText);
-      msgerInput.value = "";
-    
-      botResponse();
-    });
-    
-    function appendMessage(name, img, side, text) {
-      //   Simple solution for small apps
-      const msgHTML = `
-        <div class="msg ${side}-msg">
-          <div class="msg-img" style="background-image: url(${img})"></div>
-    
-          <div class="msg-bubble">
-            <div class="msg-info">
-              <div class="msg-info-name">${name}</div>
-              <div class="msg-info-time">${formatDate(new Date())}</div>
-            </div>
-    
-            <div class="msg-text">${text}</div>
-          </div>
-        </div>
-      `;
-    
-      msgerChat.insertAdjacentHTML("beforeend", msgHTML);
-      msgerChat.scrollTop += 500;
+const chatInputField = document.querySelector('.chat-input');
+const sendButton = document.querySelector('.chat-send-btn');
+const chatMessages = document.querySelector('.chat-messages');
+
+
+function process_send_event(e){
+    e.preventDefault();
+    const message_to_send = chatInputField.value.trim();
+    if (message_to_send) {
+        send_message(message_to_send);
+        chatInputField.value = '';
     }
-    
-    function botResponse() {
-      const r = random(0, BOT_MSGS.length - 1);
-      const msgText = BOT_MSGS[r];
-      const delay = msgText.split(" ").length * 100;
-    
-      setTimeout(() => {
-        appendMessage(BOT_NAME, BOT_IMG, "left", msgText);
-      }, delay);
+}
+
+// If we click the 'send button', process the send event.
+sendButton.addEventListener('click', process_send_event);
+
+// Trigger sending a message if the user pressed enter only.
+chatInputField.addEventListener('keypress', function (e) {
+    // We don't care about other keys being clicked, so we just return early if the key pressed wasn't 'Enter'.
+    if (e.key !== 'Enter') { 
+      return;
     }
-    
-    // Utils
-    function get(selector, root = document) {
-      return root.querySelector(selector);
-    }
-    
-    function formatDate(date) {
-      const h = "0" + date.getHours();
-      const m = "0" + date.getMinutes();
-    
-      return `${h.slice(-2)}:${m.slice(-2)}`;
-    }
-    
-    function random(min, max) {
-      return Math.floor(Math.random() * (max - min) + min);
-    }    
+    process_send_event(e); 
 });
+
+// Function to create and append a new message bubble
+function createMessageBubble(messageText, isUser, senderName = "Anonymous") {
+    // Create the main message div
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message');
+
+    // If it's a user message, add the 'user' class for the right-side alignment
+    if (isUser) {
+        messageDiv.classList.add('user');
+    }
+
+    // Create the message bubble
+    const messageBubble = document.createElement('div');
+    messageBubble.classList.add('message-bubble');
+    messageBubble.textContent = messageText;
+
+    // Create the message info (name and time)
+    const messageInfo = document.createElement('div');
+    messageInfo.classList.add('message-info');
+
+    if (!isUser) {
+        // Add sender's name for non-user messages (left-side)
+        const nameElement = document.createElement('span');
+        nameElement.classList.add('message-name');
+        nameElement.textContent = senderName;
+        messageInfo.appendChild(nameElement);
+    }
+
+    // Add timestamp
+    // const timeElement = document.createElement('span');
+    // timeElement.classList.add('message-time');
+    // timeElement.textContent = getCurrentTime();
+    // messageInfo.appendChild(timeElement);
+
+    // Append the message info and bubble to the main message div
+    messageDiv.appendChild(messageInfo);
+    messageDiv.appendChild(messageBubble);
+
+    // Add the message to the chat container
+    chatMessages.appendChild(messageDiv);
+
+    // Scroll to the bottom of the chat
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+
+function send_message(message){
+  // Sends a message to the server over the websocket connection. This is a new message we want to publish to the chat room.
+}
+
+function receive_message(message_object){
+  // Receives some message json from the server.
+  // Publishes it to the chat
+}
