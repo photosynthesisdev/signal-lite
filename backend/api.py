@@ -2,16 +2,18 @@ from fastapi import FastAPI, WebSocket, Request
 from .database import SimpleMessagingDB
 from .models import ServerValidatedMessage
 from starlette.responses import PlainTextResponse
+from fastapi.staticfiles import StaticFiles
 
 import logging
 
 app = FastAPI()
+app.mount("/", StaticFiles(directory="/root/signal-lite/frontend", html=True), name="frontend")
 
-@app.get("/bootup")
+@app.get("/api/bootup")
 def bootup(request : Request):
     return "sup"
 
-@app.websocket("/chatConnect")
+@app.websocket("/api/chatConnect")
 async def websocket(websocket: WebSocket):
     def watch_callback(self, new_messages : list[ServerValidatedMessage]):
         # As we become aware of new messages from other clients in the database, append those to the json that server should send to the client
@@ -38,3 +40,6 @@ async def websocket(websocket: WebSocket):
         logging.error(f"An Exception occured in /chatConnect Websocket: {e}")
     finally:
         database.close_connection()
+
+# statically mount files in /root/signal-lite/frontend
+# 
