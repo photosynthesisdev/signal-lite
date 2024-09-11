@@ -1,9 +1,8 @@
-window.addEventListener("load", (event) => {
+function onLoaded(event){
 
   const chatInputField = document.querySelector('.chat-input');
   const sendButton = document.querySelector('.chat-send-btn');
   const chatMessages = document.querySelector('.chat-messages');
-  
   
   function process_send_event(e){
       e.preventDefault();
@@ -13,8 +12,6 @@ window.addEventListener("load", (event) => {
           chatInputField.value = '';
       }
   }
-  
-  // If we click the 'send button', process the send event.
   sendButton.addEventListener('click', process_send_event);
   
   // Trigger sending a message if the user pressed enter only.
@@ -31,7 +28,6 @@ window.addEventListener("load", (event) => {
       // Create the main message div
       const messageDiv = document.createElement('div');
       messageDiv.classList.add('message');
-  
       // If it's a user message, add the 'user' class for the right-side alignment
       if (isUser) {
           messageDiv.classList.add('user');
@@ -70,14 +66,44 @@ window.addEventListener("load", (event) => {
       // Scroll to the bottom of the chat
       chatMessages.scrollTop = chatMessages.scrollHeight;
   }
-  
-  
-  function send_message(message){
-    // Sends a message to the server over the websocket connection. This is a new message we want to publish to the chat room.
+
+  let websocket;
+
+  function connectToServer() {
+      websocket = new WebSocket('wss://signallite.io/api/chatConnect');
+      // Event listener for when the connection is opened
+      websocket.addEventListener('open', (event) => {
+          console.log('Connected to the WebSocket server.');
+      });
+      // Event listener for receiving messages
+      websocket.addEventListener('message', (event) => {
+        receive_message(event.data);
+      });
+      // Event listener for when the connection is closed
+      websocket.addEventListener('close', (event) => {
+        console.log('Disconnected from the WebSocket server.');
+      });
+      // Event listener for error handling
+      websocket.addEventListener('error', (error) => {
+        console.error('WebSocket error:', error);
+      });
   }
   
-  function receive_message(message_object){
-    // Receives some message json from the server.
-    // Publishes it to the chat
+  // Function to send data over the WebSocket connection
+  function send_message(data) {
+      console.log(data);
+      if (socket && socket.readyState === WebSocket.OPEN) {
+          socket.send(data);
+          console.log('Data sent:', data);
+      } else {
+          console.log('WebSocket is not open. Cannot send data.');
+      }
   }
-});
+  // Function to handle receiving data from the WebSocket connection
+  function receive_message(data) {
+      console.log('Data received:', data);
+  }
+  connectToServer();
+}
+
+window.addEventListener("load", onLoaded);
