@@ -3,6 +3,7 @@ function onLoaded(event){
     const sendButton = document.querySelector('.chat-send-btn');
     const chatMessages = document.querySelector('.chat-messages');
     
+    // ---- PROCESS USER EVENTS ----
     function process_send_event(e){
         e.preventDefault();
         const message_to_send = chatInputField.value.trim();
@@ -10,10 +11,8 @@ function onLoaded(event){
             send_message(message_to_send);
             chatInputField.value = '';
         }
-    }
-    sendButton.addEventListener('click', process_send_event);
-    
-    // Trigger sending a message if the user pressed enter only.
+    }    
+    // We can either send to the server if we press enter, or if we click the 'send' button.
     chatInputField.addEventListener('keypress', function (e) {
         // We don't care about other keys being clicked, so we just return early if the key pressed wasn't 'Enter'.
         if (e.key !== 'Enter') { 
@@ -21,68 +20,10 @@ function onLoaded(event){
         }
         process_send_event(e); 
     });
-    
-    // @author - This getRelativeTime function was written by ChatGPT.
-    function getRelativeTime(timestamp) {
-        // If the timestamp is a float, it needs to be converted to milliseconds (whole number).
-        if (typeof timestamp === 'string' || timestamp.toString().includes('.')) {
-            timestamp = parseFloat(timestamp) * 1000; // Convert seconds (including fraction) to milliseconds
-        } else if (timestamp.toString().length === 10) {
-            timestamp = timestamp * 1000; // Convert integer seconds to milliseconds if needed
-        }
-        // Create a Date object from the timestamp
-        const messageTime = new Date(timestamp);
-        // Format the date to EST timezone (convert UTC to EST)
-        const options = {
-            timeZone: 'America/New_York', // EST time zone
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: true // 12-hour format with AM/PM
-        };
-        return messageTime.toLocaleTimeString('en-US', options);
-    }
+    sendButton.addEventListener('click', process_send_event);
 
-    // Function to create and append a new message bubble
-    function createMessageBubble(messageText, isUser, timestamp) {
-        // Create the main message div
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message');
-        
-        // If it's a user message, add the 'user' class for the right-side alignment
-        if (isUser) {
-            messageDiv.classList.add('user');
-        }
-    
-        // Create the message bubble
-        const messageBubble = document.createElement('div');
-        messageBubble.classList.add('message-bubble');
-        messageBubble.textContent = messageText;
-    
-        // Create the message info (for time below the bubble)
-        const messageInfo = document.createElement('div');
-        messageInfo.classList.add('message-info');
-    
-        // Add the relative time
-        const timeElement = document.createElement('span');
-        timeElement.classList.add('message-time');
-        timeElement.textContent = getRelativeTime(timestamp);
-        messageInfo.appendChild(timeElement);
-    
-        // Append the bubble and time to the main message div
-        messageDiv.appendChild(messageBubble);
-        messageDiv.appendChild(messageInfo);
-    
-        // Add the message to the chat container
-        const chatMessages = document.querySelector('.chat-messages');
-        chatMessages.appendChild(messageDiv);
-    
-        // Scroll to the bottom of the chat
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-    
-
+    // --- CLIENT SIDE WEBSOCKET LOGIC ---
     let websocket;
-
     function connectToServer() {
         websocket = new WebSocket('wss://signallite.io/api/chatConnect');
         // Event listener for when the connection is opened
@@ -143,6 +84,56 @@ function onLoaded(event){
         }
     }
 
+    // --- CLIENT SIDE MESSAGE BUBBLE HELPERS ----
+    // Used for creating the message bubbles we see on screen.
+
+    // @author - ChatGPT.
+    // Tells us the relative time in EST based on the UNIX timestamp told to us by the server.
+    function getRelativeTime(timestamp) {
+        if (typeof timestamp === 'string' || timestamp.toString().includes('.')) {
+            timestamp = parseFloat(timestamp) * 1000;
+        } else if (timestamp.toString().length === 10) {
+            timestamp = timestamp * 1000; 
+        }
+        const messageTime = new Date(timestamp);
+        const options = {
+            timeZone: 'America/New_York',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true;
+        };
+        return messageTime.toLocaleTimeString('en-US', options);
+    }
+    // Creates a message bubble based on received data.
+    function createMessageBubble(messageText, isLocalClient, timestamp) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        // If it's a user message, add the 'user' class for the right-side alignment
+        if (isLocalClient) {
+            messageDiv.classList.add('user');
+        }
+        // Create the message bubble
+        const messageBubble = document.createElement('div');
+        messageBubble.classList.add('message-bubble');
+        messageBubble.textContent = messageText;
+        // Create the message info (for timestamp next to the bubble)
+        const messageInfo = document.createElement('div');
+        messageInfo.classList.add('message-info');
+        // Add the relative time
+        const timeElement = document.createElement('span');
+        timeElement.classList.add('message-time');
+        timeElement.textContent = getRelativeTime(timestamp);
+        messageInfo.appendChild(timeElement);
+        // Append the bubble and time to the main message div
+        messageDiv.appendChild(messageBubble);
+        messageDiv.appendChild(messageInfo);
+        // Add the message to the chat container
+        const chatMessages = document.querySelector('.chat-messages');
+        chatMessages.appendChild(messageDiv);
+        // Scroll to the bottom of the chat
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    // As soon as this page loads, establish websocket connection right away.
     connectToServer();
 }
 
