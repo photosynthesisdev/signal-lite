@@ -30,34 +30,30 @@ async def chatConnect(websocket: WebSocket):
         # sends message record to a client.
         await websocket.send_text(message_record)
     def watch_callback(watch_response):
+        # As new MessageRecords are written to the database, send the new messages to clients.
         for event in watch_response.events:
             if isinstance(event, etcd3.events.PutEvent):
-                # 'value' is the MessageRecord that was just written to the database.
                 value = event.value.decode("utf-8")
-                # In short, this is just a thread safe way to send message to clients b/c 'watch_callback' is a synchronous function.
                 asyncio.run_coroutine_threadsafe(send_message_to_client(value), loop)
-    # --- ACCEPT ANY INCOMING CONNECTION ---
     # If you view 'frontend/main.js', you can see that as soon as the site loads for the client, they establish a connection to "wss://signallite.io/api/chatConnect"
     await websocket.accept()
-    # ---- CREATE & SEND USER ID -----
     # The server selects a random user_id for the client to identify themselves as.
     # This ID does not persist between sessions, so every time a client refreshes the page (and connects to this websocket) they will receive a new user_id.
     user_id = random.randint(0, 1000000)
     local_client_json_string = LocalClient(local_client_user_id = user_id).json()
     await websocket.send_text(local_client_json_string)
-    # ---- SEND OLD CHAT MESSAGE RECORDS TO CLIENT -----
-    # This goes to the database key "/v1/messages" and gets all old messages sent in the chat before this user came to the website.
+    # -- Sends old chat messages to clients. goes to the database key "/v1/messages" and gets all old messages sent in the chat before this user came to the website.
     old_message_data = database.get_prefix("/v1/messages")
     for old_message in old_message_data:
         msg = old_message[0].decode('utf-8')
         await websocket.send_text(msg)
-    # ---- LISTEN FOR NEW MESSAGES -----
+    # ---- WATCH/LISTEN FOR NEW MESSAGES -----
     # Over the lifespan of this connection, we want to ensure any new messages sent by clients are broadcasted to all other clients.
     # We do this via the notion of a 'watch' which looks at a key prefix, and sends updates.
     loop = asyncio.get_event_loop()
     watch_id = database.add_watch_prefix_callback("/v1/messages", watch_callback)
     # -------- WHILE TRUE RECEIVE LOOP --------
-    # This keeps the websocket connection alive for the duration of the clients connection.
+    # This while True loop keeps the websocket connection alive for the duration of the clients connection.
     # When the client disconnects (closes the tab), a WebSocket exception will be raised, hence why we have the try/except block.
     try:
         while True:
@@ -78,6 +74,7 @@ async def chatConnect(websocket: WebSocket):
         except:
             pass
     finally:
+        # Cleanup resources.
         database.cancel_watch(watch_id)
 
 @router.get("/deleteChatHistory")
