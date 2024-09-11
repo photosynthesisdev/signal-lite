@@ -1,5 +1,4 @@
 # Signal Lite
----
 <img src="https://signallite.io/static/signallite.png" alt="Signal Lite Logo" width="300"/>
 
 Signal Lite is a lightweight messaging app modeled after Signal. This repository contains the content for part 1 of a 3-part lecture series where we'll rebuild the app.
