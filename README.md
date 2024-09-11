@@ -3,6 +3,8 @@
 
 Signal Lite is a lightweight messaging app modeled after Signal. This repository contains the content for part 1 of a 3-part lecture series where we'll rebuild the app.
 
+The most recent version of Signal Lite will always be available on https://signallite.io. To test out Signal Lite, open up two tabs and start messaging between them!
+
 ## Repository Structure
 
 ### Frontend
@@ -30,3 +32,6 @@ This means **no external libraries** wherever possible and **no reliance on serv
 Our focus is on simplicity, readability, and optimization. We believe the true power of a programmer comes from building things yourself—without depending on overly complicated third-party services. This approach promotes a deeper understanding of the code and gives you complete control over the project.
 
 -----
+
+**Looking Ahead**
++ In parts 2/3 we will be implementing accounts, user sessions, and end-to-end encryption with some really cool public/private key cryptography!
